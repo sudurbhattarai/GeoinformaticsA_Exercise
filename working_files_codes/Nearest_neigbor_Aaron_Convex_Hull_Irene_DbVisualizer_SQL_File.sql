@@ -1,0 +1,91 @@
+CREATE DATABASE "Task2"
+    WITH
+    OWNER = postgres
+    ENCODING = 'UTF8'
+CREATE EXTENSION postgis
+/*----------------------------------------------------------------------------------------------------------*/
+/*Task 1*/
+
+CREATE TABLE random_points AS
+    SELECT ROW_NUMBER() OVER () AS point_id, geom, ST_X(geom), ST_Y(geom) FROM ST_Dump(
+        (SELECT ST_GeneratePoints(pol, 200)
+        FROM (SELECT ST_MakePolygon(ST_GeomFromText('LINESTRING(0 0, 0 10000, 10000 10000, 10000 0, 0 0)')) as pol))
+    ) as geom;
+
+
+
+CREATE TABLE AS triangles
+SELECT ROW_NUMBER() OVER () AS id, triangles.geom, array_agg(points.point_id) FROM ST_Dump(
+    (SELECT ST_DelaunayTriangles(ST_Collect(points.geom))
+    FROM random_points AS points )
+	) AS triangles
+	JOIN random_points AS points ON ST_Intersects(triangles.geom, points.geom)
+	GROUP BY triangles.geom
+----------------------------------------------------------------------------------------------------------------------------------------------	
+Task 2
+
+CREATE TABLE convexhull AS
+SELECT ROW_NUMBER() OVER () AS id, convex.geom, array_agg(points.point_id)
+	FROM  (SELECT  ST_ConvexHull(ST_Collect(points.geom)) AS geom FROM random_points as points) AS convex
+	JOIN random_points AS points ON ST_Intersects(ST_Boundary(convex.geom), points.geom)
+	GROUP BY convex.geom
+/*----------------------------------------------------------------------------------------------------------*/
+/*Task 3*/
+
+CREATE table pointList(
+point_name varchar(10),
+x float,
+y float)
+
+COPY pointList (point_name,x,y) FROM 'C:\Users\Public\Documents\myPoints.txt' (FORMAT TEXT, DELIMITER E'\t', HEADER );
+
+
+ALTER TABLE pointlist ADD COLUMN geom geometry
+UPDATE pointlist
+SET geom = ST_MakePoint(x, y)
+
+
+CREATE table pol_list(
+point_name varchar(10),
+x float,
+y float)
+
+COPY pol_list (point_name, x, y) FROM 'C:\Users\Public\Documents\myPointspol.txt' (FORMAT TEXT, DELIMITER E'\t', HEADER );
+
+
+ALTER TABLE pol_list ADD COLUMN geom geometry
+UPDATE pol_list
+SET geom = ST_MakePoint(x, y)
+
+
+CREATE TABLE poly AS
+SELECT ST_MakePolygon(ST_AddPoint(ST_MakeLine(ST_MakePoint(x, y)), ST_StartPoint(ST_Collect(ST_MakePoint(x, y))))) AS geom FROM pol_list
+
+
+SELECT point_name, x, y, ST_Within(pointlist.geom, poly.geom) FROM pointlist, poly
+
+
+/*----------------------------------------------------------------------------------------------------------*/
+
+/*Task 4*/
+
+
+CREATE TABLE random_points AS
+    SELECT ROW_NUMBER() OVER () AS point_id, geom, ST_X(geom), ST_Y(geom) FROM ST_Dump(
+        (SELECT ST_GeneratePoints(pol, 200)
+        FROM (SELECT ST_MakePolygon(ST_GeomFromText('LINESTRING(0 0, 0 10000, 10000 10000, 10000 0, 0 0)')) as pol))
+    ) as geom;
+
+
+SELECT DISTINCT ON (b.point_id)
+    b.point_id AS point_b_id,
+    a.point_id AS point_a_id,
+    b.geom <-> a.geom AS distance
+FROM
+    rand_pointsB AS b, rand_pointsA AS a
+ORDER BY
+    b.point_id
+  
+
+
+
