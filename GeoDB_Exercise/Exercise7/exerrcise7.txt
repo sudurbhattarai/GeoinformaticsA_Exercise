@@ -1,0 +1,7 @@
+connect to the downloaded osm.pbf file via the external terminal (cmd) not the sql shell by changing the directory to the file whire osm file is downloaded
+
+D:\MSRSGI\Winter_Semester23_24\GeoDB_Exercise\Exercise7\osm2psql\osm2pgsql-bin>osm2pgsql -c -d osmdb -U postgres -W -H localhost D:/MSRSGI/Winter_Semester23_24/GeoDB_Exercise/Exercise7/nepal-latest.osm.pbf
+
+
+
+osm2pgsql -c -d osmdb -U postgres -W -H localhost D:/MSRSGI/Winter_Semester23_24/GeoDB_Exercise/Exercise7/nepal-latest.osm.pbf
