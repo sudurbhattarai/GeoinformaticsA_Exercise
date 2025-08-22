@@ -1,0 +1,126 @@
+
+Exercise1
+
+gikuser12=> SELECT COUNT(*) AS total_objects
+gikuser12-> FROM buildings;
+ total_objects
+---------------
+         38451
+(1 row)
+
+gikuser12=> SELECT COUNT(*) AS non_valid_objects
+gikuser12-> FROM buildings
+gikuser12-> WHERE NOT ST_IsValid(geom);
+ non_valid_objects
+-------------------
+                 0
+(1 row)
+
+gikuser12=> SELECT COUNT(*) AS non_simple_objects
+gikuser12-> FROM buildings
+gikuser12-> WHERE NOT ST_IsSimple(geom);
+ non_simple_objects
+--------------------
+                  0
+(1 row)
+
+
+Exercise2
+
+SELECT SUM(ST_Length(geom)) AS total_tram_track_length
+FROM railways
+WHERE type = 'tram';
+
+Exercise 3
+
+gikuser12=> SELECT r.name
+gikuser12-> FROM roads r
+gikuser12-> JOIN shops s ON ST_DWithin(r.geom, s.geom, 20)
+gikuser12-> WHERE s.name = 'holy donut';
+     name
+---------------
+ Kaiserpassage
+(1 row)
+
+Exercise 4
+
+number of the building in the mentioned land use
+
+SELECT COUNT(b.id) AS building_count
+FROM buildings b
+WHERE ST_Within(b.geom, (SELECT l.geom FROM landuse l WHERE l.name = 'Gewerbehof'))
+AND
+    NOT EXISTS (
+        SELECT 1
+        FROM landuse l
+        WHERE l.name = 'Gewerbehof'
+        AND NOT ST_Within(b.geom, l.geom)
+    );
+
+ building_count
+----------------
+              6
+
+which which id located in the mentioned landuse
+
+
+SELECT b.id
+FROM buildings b
+WHERE ST_Within(b.geom, (SELECT l.geom FROM landuse l WHERE l.name = 'Gewerbehof'))
+AND
+    NOT EXISTS (
+        SELECT 1
+        FROM landuse l
+        WHERE l.name = 'Gewerbehof'
+        AND NOT ST_Within(b.geom, l.geom)
+    );
+
+  id
+------
+ 3325
+ 3326
+ 3327
+ 3328
+ 3329
+ 3330
+(6 rows)
+
+Exercise 6
+
+Select id FROM buildings b WHERE b.name = 'Karlsruhe Hauptbahnhof';
+  id
+-------
+  7365
+ 34442
+(2 rows)
+
+SELECT s.name
+FROM shops s, shoptypes
+WHERE shoptypes.designation = 'cafe'
+AND ST_Within(s.geom, (SELECT b.geom FROM buildings b WHERE b.name = 'Karlsruhe Hauptbahnhof' and b.id=7365));
+
+          name
+------------------------
+ 1913
+ Coffee Fellows
+ Hofheinz Internet-Café
+(3 rows)
+
+SELECT s.name
+FROM shops s, shoptypes
+WHERE shoptypes.designation = 'cafe'
+AND ST_Within(s.geom, (SELECT b.geom FROM buildings b WHERE b.name = 'Karlsruhe Hauptbahnhof' and b.id=34442));
+
+ name
+------
+(0 rows)
+
+
+
+
+
+
+
+
+
+

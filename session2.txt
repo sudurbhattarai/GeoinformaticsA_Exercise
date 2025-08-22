@@ -1,0 +1,36 @@
+P.No. 10: 
+SELECT ST_isValid(geom), ST_isSimple(geom) FROM trees;
+SELECT ST_isValid(geom), ST_isSimple(geom) FROM streets;
+
+P.No. 12:
+DELETE FROM streets
+WHERE NOT ST_isValid(geom);
+
+P.No. 14:
+CREATE TABLE polygons(geom geometry(POLYGON));
+INSERT INTO polygons (geom) VALUES (ST_GeomFromText('POLYGON((0 0, 10 10, 10 0, 0 10, 0 0))'));
+SELECT ST_isValid(geom) FROM polygons;
+NOTICE:  Self-intersection at or near point 5 5
+ st_isvalid
+------------
+ f
+(1 row)
+
+P.No. 18:
+
+-Non-valid geometries can be prevented from inserting into PostGIS tables by enforcing the CHECK constraint.
+-On ST_IsValid(geom) attribute of  lakes relation, the CHECK constraint has been set.
+
+CREATE TABLE lakes(geom geometry(POLYGON));
+ALTER TABLE lakes ADD CONSTRAINT geometry_valid_check CHECK (ST_IsValid(geom));
+INSERT INTO lakes (geom) VALUES (ST_GeomFromText('POLYGON((0 0, 10 10, 10 0, 0 10, 0 0))'));
+
+NOTICE:  Self-intersection at or near point 5 5
+ERROR:  new row for relation "lakes" violates check constraint "geometry_valid_check"
+DETAIL:  Failing row contains (0103000000010000000500000000000000000000000000000000000000000000...).
+
+SELECT ST_isValid(geom) FROM lakes;
+(returns 0 rows)----non-valid polygons is not be inserted any more
+
+SELECT ST_AsText(geom) AS coordinates FROM lakes;
+(returns 0 rows)----non-valid polygons is not be inserted any more

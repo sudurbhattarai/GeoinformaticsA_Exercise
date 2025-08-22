@@ -1,0 +1,17 @@
+Exercise1
+CREATE TABLE geometries3D (
+    object_id SERIAL PRIMARY KEY,
+    geom GEOMETRY(POLYHEDRALSURFACEZ, 4326)
+);
+
+
+better to use geom
+geom = column name
+geometry = datatype
+
+Exercise2
+CREATE INDEX nd_index ON geometries3D USING GIST (geometry gist_geometry_ops_nd);
+
+Exercise 3
+SELECT ST_Extrude(ST_Buffer(ST_GeomFromText('POINT(100 90)'), 50, 'quad_segs=2'),0,0,30);
+

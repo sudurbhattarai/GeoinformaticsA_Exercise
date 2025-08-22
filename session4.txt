@@ -1,0 +1,3 @@
+CREATE VIEW Conv_view AS 
+SELECT ST_ConvexHull(ST_Collect(geom)) AS convex_Hull 
+FROM Funde;

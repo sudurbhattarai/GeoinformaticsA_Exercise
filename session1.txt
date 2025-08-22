@@ -1,0 +1,41 @@
+Exercise 1:
+CREATE TABLE trees(tree_type varchar(30), geom geometry(POINT, 25832));
+
+Exercise 2:
+INSERT INTO trees (tree_type, geom) VALUES ('oak', ST_GeomFromText('POINT(456281.09 5429865.82)', 25832)), ('birch', ST_GeomFromText('POINT(456680.92 5429301.05)', 25832)), ('poplar', ST_GeomFromText('POINT(456545.69 5429222.31)', 25832));
+
+SELECT tree_type, ST_AsText(geom) AS coordinates FROM trees;
+SELECT ST_isSimple('LINESTRING(1 2, 3 4)');
+SELECT ST_isValid(geom), ST_isSimple(geom) FROM trees;
+
+q
+\x on
+\x off
+
+
+Exercise 3:
+CREATE TABLE streets(street_name varchar(50), geom geometry(LINESTRING, 25832));
+
+Exercise 4:
+INSERT INTO streets (street_name, geom)
+VALUES
+    ('Kaiserstraße', ST_GeomFromText('LINESTRING(455380.74 5428774.29, 456411.02 5428698.04, 457355.88 5428630.46)', 25832)),
+    ('Engesserstraße', ST_GeomFromText('LINESTRING(456554.21 5429131.11, 457135.09 5428843.78, 457429.79 5428822.35)', 25832));
+
+
+
+Exercise 5:
+CREATE TABLE lakes(lake_name varchar(50), geom geometry(POLYGON, 25832));
+
+Exercise 6:
+INSERT INTO lakes (lake_name, geom)
+VALUES 
+    ('Epplesee', ST_GeomFromText('POLYGON((450611.19 5424157.70, 450747.75 5423740.31, 450647.14 5423525.46, 450569.08 5423440.79, 450187.30 5423733.16, 450373.12 5424034.93, 450611.19 5424157.70))', 25832)),
+    ('Hurstsee', ST_GeomFromText('POLYGON((452641.31 5417299.03, 452779.18 5417391.94, 452946.90 5417685.27, 453116.32 5417574.10, 453001.40 5417343.02, 452926.09 5417210.38, 452641.31 5417299.03))', 25832));
+
+For viewing the coordinates
+SELECT lake_name, ST_AsText(geom) AS coordinates FROM lakes;
+
+SELECT street_name, ST_AsText(geom) AS coordinates FROM streets;
+
+SELECT tree_type, ST_AsText(geom) AS coordinates FROM trees;
